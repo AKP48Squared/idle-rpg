@@ -1,0 +1,17 @@
+{
+  "name": "akp48-plugin-idle-rpg",
+  "version": "0.1.0",
+  "description": "Idle RPG plugin for AKP48.",
+  "main": "idle.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Alan H (Feildmaster) <admin@feildmaster.com> (http://feildmaster.com/)",
+  "contributors": [
+    "Austin Peterson <austin@akpwebdesign.com>"
+  ],
+  "license": "MIT",
+  "dependencies": {
+    "sqlite3": "*"
+  }
+}

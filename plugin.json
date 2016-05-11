@@ -1,0 +1,12 @@
+{
+  "name": "idle-rpg",
+  "type": "MessageHandler",
+  "description": "Idle RPG for AKP48.",
+  "main": "idle.js",
+  "commands": {
+    "idle": {
+      "helpText": "The main command for interacting with Idle RPG for AKP48",
+      "usageText": "<todo>"
+    }
+  }
+}
