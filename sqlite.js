@@ -2,9 +2,15 @@
 const sqlite = require("sqlite3").verbose();
 const SELECT_PLAYER = "SELECT name, pass, class as clazz, online, level, next, idled, penalties, lastLogin, items FROM players";
 
-// Export the database itself
-var db = new sqlite.Database(require('path').resolve(__dirname, '.database'), setupDatabase);
-module.exports = db;
+var db;
+module.exports = function (callback) {
+  if (!db) {
+    db = new sqlite.Database(require('path').resolve(__dirname, '.database'), function (error) {
+      setupDatabase(error, callback);
+    });
+  }
+  return db;
+};
 // TODO: Call this when the bot starts
 module.exports.getOnlinePlayers = function (callback) {
   if (typeof callback !== "function") return; // This isn't valid, don't process
@@ -112,18 +118,17 @@ var player_columns = [
   "itemSum INT",
   "items TEXT", // Store all items in a giant blob
 ];
-function setupDatabase(error) {
+function setupDatabase(error, callback) {
   if (error) return GLOBAL.logger.error(error);
   GLOBAL.logger.debug("Setting up IdleRPG database");
   var player_def = player_columns.join(", ");
   // Sadly CREATE TABLE doesn't return any way to varify if it created or not
-  db.run(`CREATE TABLE IF NOT EXISTS players (${player_def})`, function (error) {if (error) GLOBAL.logger.error(error);});
-  setupChannels();
-}
-
-function setupChannels(callback) {
-  db.run("CREATE TABLE IF NOT EXISTS channels (channel TEXT UNIQUE, options TEXT)", function (error) {
-    if (error) return GLOBAL.logger.error(error);
-    if (typeof callback === "function") callback();
+  db.run(`CREATE TABLE IF NOT EXISTS players (${player_def})`, function (error) {
+    if (error) GLOBAL.logger.error(error);
+    if (typeof callback === "function") callback("players", error);
+    db.run("CREATE TABLE IF NOT EXISTS channels (channel TEXT UNIQUE, options TEXT)", function (error) {
+      if (error) GLOBAL.logger.error(error);
+      if (typeof callback === "function") callback("channels", error);
+    });
   });
 }

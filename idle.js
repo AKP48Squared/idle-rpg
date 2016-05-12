@@ -70,33 +70,32 @@ class IdleRPG extends MessageHandlerPlugin {
     self._utime = 1; // Setting this to 1 makes it so that we don't list top players when our first user joins
     self._ltime = 1; // When we are setup we set ltime to current time
     
-    function init() {
-      if (self._ltime !== 1) return;
-      self._ltime = $s.time();
-      // TODO: load "online" players
-      DB.getTotalPlayers(function (data) {
-        if (data.error) return error(`Error getting total players: ${data.error}`);
-        totalPlayers = data.value;
-      });
-      // Load channels when we get a server instance
-      DB.loadChannels(function (data) {
-        if (data.error) return error(`Error loading channel data: ${data.error}`);
-        else debug(`Loading ${data.rows.length} channels`);
-        data.rows.forEach(function (row) {
-          var options = self.getChannelOptions(row.channel);
-          Object.keys(row.options).forEach(function(o) {
-            if (options.hasOwnProperty(o)) options[o] = row.options[o] ? true : false; // Force boolean
+    DB(function init(type, error) {
+      debug("Init: " + type);
+      if (self._ltime === 1) self._ltime = $s.time();
+      if (error) return;
+      if (type === "players") {
+        // TODO: load "online" players
+        DB.getTotalPlayers(function (data) {
+          if (data.error) return error(`Error getting total players: ${data.error}`);
+          totalPlayers = data.value;
+        });
+      } else if (type === "channels") {
+        // Load channels when we get a server instance
+        DB.loadChannels(function (data) {
+          if (data.error) return error(`Error loading channel data: ${data.error}`);
+          else debug(`Loading ${data.rows.length} channels`);
+          data.rows.forEach(function (row) {
+            var options = self.getChannelOptions(row.channel);
+            Object.keys(row.options).forEach(function(o) {
+              if (options.hasOwnProperty(o)) options[o] = row.options[o] ? true : false; // Force boolean
+            });
           });
         });
-      });
-    }
-    
-    AKP48.on("loadFinishedNever", init);
-    AKP48.on("serverConnect", function(id, instance) {
-      // We need to do this here, since it doesn't work without an error in "loadFinished"
-      if (self._ltime === 1) {
-        init();
       }
+    });
+    
+    AKP48.on("serverConnect", function(id, instance) {
       if (instance._pluginName !== "IRC") return;
       var IRC = instance._client;
       servers[id] = instance; // Store servers, otherwise we can't send game updates
