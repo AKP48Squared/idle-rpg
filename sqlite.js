@@ -99,7 +99,7 @@ module.exports.saveChannels = function (channels) {
       $channel: key,
       $options: options
     }, function (error) {
-      if (error) GLOBAL.logger.error(`IdleRPG: Error saving ${key}: ${error}`);
+      if (error) global.logger.error(`IdleRPG: Error saving ${key}: ${error}`);
     });
   });
 };
@@ -119,15 +119,15 @@ var player_columns = [
   "items TEXT", // Store all items in a giant blob
 ];
 function setupDatabase(error, callback) {
-  if (error) return GLOBAL.logger.error(error);
-  GLOBAL.logger.debug("Setting up IdleRPG database");
+  if (error) return global.logger.error(error);
+  global.logger.debug("Setting up IdleRPG database");
   var player_def = player_columns.join(", ");
   // Sadly CREATE TABLE doesn't return any way to varify if it created or not
   db.run(`CREATE TABLE IF NOT EXISTS players (${player_def})`, function (error) {
-    if (error) GLOBAL.logger.error(error);
+    if (error) global.logger.error(error);
     if (typeof callback === "function") callback("players", error);
     db.run("CREATE TABLE IF NOT EXISTS channels (channel TEXT UNIQUE, options TEXT)", function (error) {
-      if (error) GLOBAL.logger.error(error);
+      if (error) global.logger.error(error);
       if (typeof callback === "function") callback("channels", error);
     });
   });

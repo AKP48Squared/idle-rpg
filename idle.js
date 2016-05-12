@@ -11,7 +11,7 @@ var debug = function (message) {_log("debug", message);},
   error = function (message) {_log("error", message);},
   info = function (message) {_log("info", message);},
   silly = function (message) {_log("silly", message);},
-  _log = function (level, message) {GLOBAL.logger[level](`IdleRPG: ${message}`);};
+  _log = function (level, message) {global.logger[level](`IdleRPG: ${message}`);};
 
 // *** Constant values
 var config = { // Perhaps allow options to be mutable with config/commands
