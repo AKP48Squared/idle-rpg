@@ -321,7 +321,7 @@ IdleRPG.prototype.unload = function() {
     self.save(function (saved) {
       debug("Closing DB");
       // Close the database, then resolve
-      DB.close(function (error) {
+      DB().close(function (error) {
         debug("Closed");
         if(true) { // For now, always save
           resolve(true);
