@@ -3,6 +3,10 @@
   "type": "MessageHandler",
   "description": "Idle RPG for AKP48.",
   "main": "idle.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/AKP48Squared/idle-rpg.git"
+  },
   "commands": {
     "idle": {
       "helpText": "The main command for interacting with Idle RPG for AKP48",
