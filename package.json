@@ -1,6 +1,6 @@
 {
   "name": "akp48-plugin-idle-rpg",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Idle RPG plugin for AKP48.",
   "main": "idle.js",
   "scripts": {
