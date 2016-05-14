@@ -18,7 +18,7 @@ Command.prototype.process = function(context) {
       var online = Object.keys(idle.getOnlinePlayers()).length, total = idle.getTotalPlayers(), channels = Object.keys($chans).filter(key => $chans[key].enabled).length;
       context.reply(`Enabled: ${config.enabled} | Players: ${online}/${total} | Channels: ${channels}`);
       var p = text.shift();
-      if (!p && _case !== "info") p = _case;
+      if (!p && _case.toLowerCase() !== "info") p = _case;
       if (!p) return;
       idle.getPlayer(p, function (player) {
         if (!player) return GLOBAL.logger.debug(`${p} not found`);
@@ -57,7 +57,7 @@ Command.prototype.process = function(context) {
       return context.reply("Sorry, can't login as fake users at this time");
     case "delold":
     case "adjust":
-      return context.reply("Commands not currently implemented");
+      return context.reply(`${_case} not currently implemented`);
   }
 };
 

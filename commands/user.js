@@ -1,4 +1,4 @@
-// User management
+// Player management
 function Command() {
   this.names = ["join", "login", "register", "part", "logout", "quit", "pass"];
   this.perms = [];
@@ -55,6 +55,9 @@ Command.prototype.process = function(context) {
       player.setPassword(args[0]);
       context.reply("Password changed");
       // TODO: message all users
+      break;
+    case "info":
+      // TODO: Reply with player information
       break;
     case "quit":
       // Check if you're logged in already
