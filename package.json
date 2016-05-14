@@ -3,6 +3,10 @@
   "version": "0.1.1",
   "description": "Idle RPG plugin for AKP48.",
   "main": "idle.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/AKP48Squared/idle-rpg.git"
+  },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "preversion": "git checkout master && git pull --ff-only",
