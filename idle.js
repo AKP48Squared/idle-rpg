@@ -112,7 +112,7 @@ class IdleRPG extends MessageHandlerPlugin {
         if (!player) return;
         // Penalize based off of text.length
         var penalty = player.penalize(text.length);
-        send(instance, nick, `For the discraceful act of sending a message in ${to}, you have been penalized ${self.duration(penalty)}.`);
+        send(instance, nick, `For the discraceful act of sending a message in ${to}, you have been penalized ${util.duration(penalty)}.`);
       });
       IRC.on("nick", function(oldNick, newNick, chans) {
         if (!config.enabled) return;
@@ -124,7 +124,7 @@ class IdleRPG extends MessageHandlerPlugin {
         users.splice(player.getUsers().indexOf(uid));
         users.push(`${id}_${newNick}`);
         var penalty = player.penalize(30);
-        send(instance, newNick, `You have been penalized ${self.duration(penalty)} for nick changing.`);
+        send(instance, newNick, `You have been penalized ${util.duration(penalty)} for nick changing.`);
       });
       IRC.on("part", function(channel, nick) {
         if (!config.enabled) return;
@@ -135,7 +135,7 @@ class IdleRPG extends MessageHandlerPlugin {
         if (!player) return;
         // Penalize nick if is player
         var penalty = player.penalize(200);
-        send(instance, nick, `You have been penalized ${self.duration(penalty)} for parting ${channel}.`);
+        send(instance, nick, `You have been penalized ${util.duration(penalty)} for parting ${channel}.`);
       });
       IRC.on("kick", function(channel, nick) {
         if (!config.enabled) return;
@@ -146,7 +146,7 @@ class IdleRPG extends MessageHandlerPlugin {
         if (!player) return;
         // Penalize nick if is player
         var penalty = player.penalize(250);
-        send(instance, nick, `You have been penalized ${self.duration(penalty)} for getting kicked from ${channel}.`);
+        send(instance, nick, `You have been penalized ${util.duration(penalty)} for getting kicked from ${channel}.`);
       });
       IRC.on("quit", function(nick) {
         if (!config.enabled) return;
@@ -156,7 +156,7 @@ class IdleRPG extends MessageHandlerPlugin {
         // Penalize nick if is player
         var penalty = player.penalize(20);
         // Send messages to all users still logged in
-        self.sendPlayerMessage(`${player.getName()} has been penalized ${self.duration(penalty)}`, player);
+        self.sendPlayerMessage(`${player.getName()} has been penalized ${util.duration(penalty)}`, player);
         player.logout();
       });
     });
@@ -385,19 +385,6 @@ IdleRPG.prototype.processContext = function(context) {
   return true;
 };
 
-// Return human readable time
-IdleRPG.prototype.duration = function(time) {
-  if (!/^\d+$/.test(time)) {
-    return `NaN (${time})`;
-  }
-  var days = Math.floor(time/$s.oneDay),
-    day = days == 0 ? "" : days == 1 ? "1 day, " : `${days} days, `,
-    hours = util.pad(Math.floor(time%$s.oneDay/$s.oneHour), 2, "0"),
-    minutes = util.pad(Math.floor(time%$s.oneHour/$s.oneMinute), 2, "0"),
-    seconds = util.pad(Math.floor(time%$s.oneMinute), 2, "0");
-  return `${day}${hours}:${minutes}:${seconds}`;
-};
-
 IdleRPG.prototype.update = function() {
   if (!config.enabled) return;
   var self = this;
@@ -436,7 +423,7 @@ IdleRPG.prototype.update = function() {
     var player = players[key];
     if (player.update(uTime)) {
       // Send the player a message?
-      self.sendMessages(`${player.getName()}, the ${player.getClass()}, has reached level ${player.getLevel()}! Next level in ${self.duration(player.getNext())}`, "level"); // Give a notice to channels that don't have announcements blocked
+      self.sendMessages(`${player.getName()}, the ${player.getClass()}, has reached level ${player.getLevel()}! Next level in ${util.duration(player.getNext())}`, "level"); // Give a notice to channels that don't have announcements blocked
       self.findItem(player); // The player now has a chance to find an item...!
       self.doBattle(player); // The player may now battle an opponent
     }
