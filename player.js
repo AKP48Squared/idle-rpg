@@ -168,7 +168,7 @@ module.exports = function (config, db) {
     for (var key of Object.keys(types)) {
       items.push(`${types[key]}(${this.getItem(key)})`);
     }
-    return `${this.getName()}(${this.getLevel()}) the ${this.getClass()}, will level in ${util.duration(player.getNext())}. Items(${player.getItemCount()}): ${items.join(", ")}`;
+    return `${this.getName()}(${this.getLevel()}) the ${this.getClass()}, will level in ${util.duration(player.getNext())}. Items(${this.getItemCount()}): ${items.join(", ")}`;
   };
   
   IdlePlayer.createPlayer = function (data) {
