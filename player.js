@@ -151,6 +151,26 @@ module.exports = function (config, db) {
     }
   }
   
+  IdlePlayer.prototype.toString = function() {
+    var types = {
+      helm: "Helmet",
+      shirt: "Shirt",
+      pants: "Pants",
+      shoes: "Shoes",
+      gloves: "Gloves",
+      weapon: "Weapon",
+      shield: "Shield",
+      ring: "Ring",
+      amulet: "Amulet",
+      charm: "Charm",
+    };
+    var items = [];
+    for (var key of Object.keys(types)) {
+      items.push(`${types[key]}(${this.getItem(key)})`);
+    }
+    return `${this.getName()}(${this.getLevel()}) the ${this.getClass()}, will level in ${util.duration(player.getNext())}. Items(${player.getItemCount()}): ${items.join(", ")}`;
+  };
+  
   IdlePlayer.createPlayer = function (data) {
     if (!data) return null;
     return new IdlePlayer()._load(data);

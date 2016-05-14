@@ -22,23 +22,7 @@ Command.prototype.process = function(context) {
       if (!p) return;
       idle.getPlayer(p, function (player) {
         if (!player) return GLOBAL.logger.debug(`${p} not found`);
-        var types = { // TODO: make this available everywhere
-          helm: "Helmet",
-          shirt: "Shirt",
-          pants: "Pants",
-          shoes: "Shoes",
-          gloves: "Gloves",
-          weapon: "Weapon",
-          shield: "Shield",
-          ring: "Ring",
-          amulet: "Amulet",
-          charm: "Charm",
-        };
-        var items = [];
-        for (var key of Object.keys(types)) {
-          items.push(`${types[key]}(${player.getItem(key)})`);
-        }
-        context.reply(`Player: ${player.isPassword("")?"@":""}${player.getName()}(${player.getLevel()}) the ${player.getClass()}, will level in ${idle.duration(player.getNext())}. Items(${player.getItemCount()}): ${items.join(" ")}`);
+        context.reply(`Player: ${player.isPassword("")?"@":""}${player.toString()}`);
       })
       break;
     case "enable":
