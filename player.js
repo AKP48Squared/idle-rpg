@@ -50,7 +50,7 @@ module.exports = function (config, db) {
     
     this.getItemCount = function getItemCount() {
       var count = 0;
-      Object.keys(items).forEach(key => count += items[key]);
+      util.forEach(items, (key, val) => count += val);
       return count;
     }
     
@@ -165,9 +165,7 @@ module.exports = function (config, db) {
       charm: "Charm",
     };
     var items = [];
-    for (var key of Object.keys(types)) {
-      items.push(`${types[key]}(${this.getItem(key)})`);
-    }
+    util.forEach(types, (key, val) => items.push(`${val}(${this.getItem(key)})`), this);
     return `${this.getName()}(${this.getLevel()}) the ${this.getClass()}, will level in ${util.duration(player.getNext())}. Items(${this.getItemCount()}): ${items.join(", ")}`;
   };
   

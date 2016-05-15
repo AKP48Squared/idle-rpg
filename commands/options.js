@@ -1,3 +1,5 @@
+const util = require("../utilities");
+
 // View/Edit individual options for a channel
 function Command() {
   this.names = ["channel", "chan-opts", "options"];
@@ -6,8 +8,7 @@ function Command() {
 
 function build(object) {
   var str = [];
-  Object.keys(object).forEach(function (key) {
-    var val = object[key];
+  util.forEach(object, function (key, val) {
     if (val === true) {
       val = "enabled";
     } else if (val === false) {

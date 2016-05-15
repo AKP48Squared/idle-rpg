@@ -9,7 +9,6 @@ Command.prototype.process = function(context) {
   var text = context.irpgText.split(" ");
   var idle = context.irpg;
   var config = idle.getConfig();
-  //GLOBAl.logger.debug(idle);
   var _case = text.shift();
   switch (_case.toLowerCase()) {
     default:
@@ -23,7 +22,7 @@ Command.prototype.process = function(context) {
       idle.getPlayer(p, function (player) {
         if (!player) return GLOBAL.logger.debug(`${p} not found`);
         context.reply(`Player: ${player.isPassword("")?"@":""}${player.toString()}`);
-      })
+      });
       break;
     case "enable":
       if (config.enabled) return context.reply("Game is already enabled");

@@ -48,7 +48,7 @@ module.exports.getPlayer = function (name, callback) {
   if (typeof callback !== "function") return; // This isn't valid, don't process
   
   db.get(`${SELECT_PLAYER} WHERE name = ?`, name, function (error, row) {
-    row.fromDB = true;
+    if (row) row.fromDB = true;
     callback({data: row, error: error});
   });
 };

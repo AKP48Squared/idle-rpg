@@ -1,3 +1,4 @@
+'use strict';
 const $s = require("./simple-seconds");
 
 exports.isChannel = isChannel; // Check if "text" is a channel
@@ -5,6 +6,7 @@ exports.pad = pad; // Pad a string to given length with given padding
 exports.values = values; // Gets values from an object, returns an array
 exports.random = random; // Get a random value from (low to high, or 0 to low)
 exports.duration = duration; // Return human readable time
+exports.forEach = forEach; // Iterate over an object
 exports.item_types = ["helm", "shirt", "pants", "shoes", "gloves", "weapon", "shield", "ring", "amulet", "charm"];
 
 function isChannel(text) {
@@ -23,8 +25,7 @@ function pad(text, length, padding) {
 
 function values(O) {
   var vals = [];
-  Object.keys(O).forEach(function (key) {
-    var val = O[key];
+  forEach(O, function (key, val) {
     if (val) vals.push(val);
   });
   return vals;
@@ -49,4 +50,10 @@ function duration(time) {
     minutes = util.pad(Math.floor(time%$s.oneHour/$s.oneMinute), 2, "0"),
     seconds = util.pad(Math.floor(time%$s.oneMinute), 2, "0");
   return `${day}${hours}:${minutes}:${seconds}`;
+}
+
+function forEach(object, func, thisArg) {
+  Object.keys(object).forEach(function (key) {
+    func.call(thisArg, key, object[key]);
+  });
 }

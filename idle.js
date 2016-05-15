@@ -59,9 +59,9 @@ class IdleRPG extends MessageHandlerPlugin {
 		self.commands = {};
     if (_config) {
       // Merge values from _config into config
-      Object.keys(_config).forEach(function (key) {
-        if (config.hasOwnProperty(key)) { config[key] = _config[key]; }
-        //else if (key === "oldKey") {config["newKey"] = _config[key]}
+      util.forEach(_config, function (key, val) {
+        if (config.hasOwnProperty(key)) { config[key] = val; }
+        //else if (key === "oldKey") {config["newKey"] = val}
       });
     }
     // Always save, in case of a change in config style
@@ -87,8 +87,8 @@ class IdleRPG extends MessageHandlerPlugin {
           else debug(`Loading ${data.rows.length} channels`);
           data.rows.forEach(function (row) {
             var options = self.getChannelOptions(row.channel);
-            Object.keys(row.options).forEach(function(o) {
-              if (options.hasOwnProperty(o)) options[o] = row.options[o] ? true : false; // Force boolean
+            util.forEach(row.options, function(o, val) {
+              if (options.hasOwnProperty(o)) options[o] = val ? true : false; // Force boolean
             });
           });
         });
@@ -197,8 +197,7 @@ IdleRPG.prototype._handleCommand = function(message, context, resolve) {
   context.irpgText = text.join(" ");
   context.irpgCommand = command;
   
-  Object.keys(this.commands).forEach(function(key) {
-    var cmd = this.commands[key];
+  util.forEach(this.commands, function(key, cmd) {
     if (!config.enabled && !cmd.admin) return; // Game isn't enabled, and it's not an admin command?
     if (!context.irpgEnabled && !(cmd.bypass || cmd.admin)) return; // Game isn't enabled in channel, and command doesn't bypass?
     silly(`Checking ${key} command for ${command}.`);
@@ -221,7 +220,7 @@ IdleRPG.prototype._handleCommand = function(message, context, resolve) {
     }
     // Passed all checks, run the command
     if (cmd.process) cmd.process(context);
-  }, this);
+  });
 };
 
 IdleRPG.prototype.getConfig = function() {
@@ -237,8 +236,8 @@ IdleRPG.prototype.getChannelOptions = function(channel) {
     channels[channel] = {
       enabled: false, // Do not default to enabled. This must be explicitly set!
     };
-    Object.keys(chanOpts).forEach(function(key) {
-      channels[channel][chanOpts[key]] = true;
+    util.forEach(chanOpts, function(key, val) {
+      channels[channel][val] = true;
     });
   }
   
@@ -293,8 +292,7 @@ IdleRPG.prototype.playerLoaded = function(name) {
 
 IdleRPG.prototype.findPlayer = function(server_nick) {
   var player = false;
-  Object.keys(players).forEach(function (key) {
-    var _p = players[key];
+  util.forEach(players, function (key, _p) {
     // TODO: check if server_nick is connected
     if (_p && _p.isOnline() && _p.getUsers().includes(server_nick)) player = _p;
   });
@@ -305,18 +303,7 @@ IdleRPG.prototype.unload = function() {
   debug("Unloading");
   var self = this;
   clearTimeout(_interval);
-  // Unload events
-  /*Object.keys(servers).forEach(function(key) {
-    var server = servers[key];
-    if (server._pluginName === "IRC") {
-      var IRC = server._client;
-      IRC.on("notice", self.onNotice);
-      IRC.on("nick", self.onNick);
-      IRC.on("part", self.onPart);
-      IRC.on("kick", self.onKick);
-      IRC.on("quit", self.onQuit);
-    }
-  });*/
+  
   return new Promise(function(resolve, reject) {
     self.save(function (saved) {
       debug("Closing DB");
@@ -419,8 +406,7 @@ IdleRPG.prototype.update = function() {
   }
   
   // Update players
-  Object.keys(players).forEach(function(key) {
-    var player = players[key];
+  util.forEach(players, function(key, player) {
     if (player.update(uTime)) {
       // Send the player a message?
       self.sendMessages(`${player.getName()}, the ${player.getClass()}, has reached level ${player.getLevel()}! Next level in ${util.duration(player.getNext())}`, "level"); // Give a notice to channels that don't have announcements blocked
