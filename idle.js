@@ -4,6 +4,8 @@ const MessageHandlerPlugin = require('../../lib/MessageHandlerPlugin');
 const DB = require("./sqlite");
 const $s = require("./simple-seconds");
 const util = require("./utilities");
+const join = require("./msi/join"); // MultiStepInput
+const login = require("./msi/login");
 var _interval;
 
 // Logging methods
@@ -19,8 +21,10 @@ var config = { // Perhaps allow options to be mutable with config/commands
   base: 600,
   step: 1.16,
   pStep: 1.14,
-  penaltyLimit: 0 // Set higher than 0 if you want to put a limit to how much of a penalty someone can get at once
-  //, clock: 3 // Buffer time in seconds, 1-60 (may not need/want this)
+  penaltyLimit: 0, // Set higher than 0 if you want to put a limit to how much of a penalty someone can get at once
+  maxNameLength: 30,
+  maxClassLength: 30,
+  //clock: 3, // Buffer time in seconds, 1-60 (may not need/want this)
 };
 
 var servers = {
@@ -168,12 +172,26 @@ class IdleRPG extends MessageHandlerPlugin {
       self.commands = res;
     }, function(err){
       error(err);
-    }); 
+    });
   }
 }
 
+IdleRPG.prototype.handleMSI = function (context) {
+  var user = `${context.instanceId}_${context.user}_${context.to}`;
+  var msi;
+  if (login.isSetup(user)) { // Handle logging in
+    msi = login;
+  } else if (join.isSetup(user)) { // Handle registration
+    msi = join;
+  } else { // Neither of our inputs are setup yet
+    return false;
+  }
+  msi.handle(user, context);
+  return true;
+};
+
 IdleRPG.prototype.handleMessage = function(message, context, resolve) {
-  if (!this.processContext(context)) return;
+  if (!this.processContext(context) || this.handleMSI(context)) return;
   if (context.isPM) return this._handleCommand(message, context, resolve); // We don't penalize for PM's... even if we don't do anything
   // Disabled in channel, player doesn't exist
   if (!context.irpgEnabled || !context.player) return;
@@ -184,7 +202,7 @@ IdleRPG.prototype.handleMessage = function(message, context, resolve) {
 };
 
 IdleRPG.prototype.handleCommand = function(message, context, resolve) {
-  if (this.processContext(context)) this._handleCommand(message, context, resolve);
+  if (this.processContext(context) && !this.handleMSI(context)) this._handleCommand(message, context, resolve);
 };
 
 IdleRPG.prototype._handleCommand = function(message, context, resolve) {
