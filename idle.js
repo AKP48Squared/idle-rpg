@@ -276,13 +276,13 @@ IdleRPG.prototype.getOnlinePlayers = function() {
   return $p;
 };
 
-IdleRPG.prototype.loginPlayer = function(player, server_nick, isNew) {
+IdleRPG.prototype.loginPlayer = function(player, server_nick) {
   if (!(player || server_nick)) return;
   if (!this.playerLoaded(player.getName())) {
     players[player.getName().toLowerCase()] = player;
   }
-  if (isNew) totalPlayers++;
-  player.login(server_nick, $s.time());
+  if (!player.isStored()) totalPlayers++;
+  player.login(server_nick);
 };
 
 // TODO: DB checks and methods
