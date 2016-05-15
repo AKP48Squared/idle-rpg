@@ -15,7 +15,7 @@ Command.prototype.process = function(context) {
       if (context.irpgEnabled) {
         return context.reply("This channel is already participating");
       }
-      context.alert(`IdleRPG: ${context.irpgChannel} now participating`, `Now participating! Join by messaging me with: ${context.delimiter}idle join <name> <password> [class]`);
+      context.alert(`IdleRPG: ${context.irpgChannel} now participating`, `Now participating! Join by messaging me with: 'idle join <name> <pass> [class]'. Login with 'idle login <name> <pass>'`);
       chanOpts.enabled = true;
       break;
     case "remove":
