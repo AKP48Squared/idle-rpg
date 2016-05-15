@@ -1,4 +1,5 @@
 const util = require("./utilities");
+const $s = require("./simple-seconds");
 
 module.exports = function (config, db) {
   function IdlePlayer() { 
@@ -65,13 +66,13 @@ module.exports = function (config, db) {
     };
     
     // Mark as online
-    this.login = function login(server_nick, time) {
+    this.login = function login(server_nick) {
       // Already online?
       if (online && users.includes(server_nick)) {
         return false;
       }
       online = true;
-      lastLogin = time;
+      lastLogin = $s.time();
       users.push(server_nick);
       return true;
     }
