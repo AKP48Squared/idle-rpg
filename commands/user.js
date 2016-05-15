@@ -1,3 +1,5 @@
+const util = require("../utilities");
+
 // Player management
 function Command() {
   this.names = ["join", "login", "register", "part", "logout", "quit", "pass"];
@@ -21,20 +23,18 @@ Command.prototype.process = function(context) {
       // If not, load it
       context.irpg.getPlayer(args[0], function (player) {
         if (player === false) return context.alert("An error occurred when looking up players");
-        var isNew = false;
         if (!player) {
           if (args.length < 3) return context.reply(`To create a player you must include a class name.`);
           player = context.irpg.getNewPlayer(args[0], args[1], args[2]);
           context.reply(`Welcome to IdleRPG, ${args[0]}! Keep in mind that this is an idle game, and that talking (in channels playing the game), changing nicks, parting, and quitting will penalize you.`);
-          context.irpg.sendMessages(`Here's a warm welcome to our newest player ${args[0]} the ${args[2]}! Next level in ${context.irpg.duration(player.getNext())}`, "join");
-          isNew = true;
+          context.irpg.sendMessages(`Here's a warm welcome to our newest player ${args[0]} the ${args[2]}! Next level in ${util.duration(player.getNext())}`, "join");
         } else { // Login
           if (!player.isPassword(args[1])) return context.reply("Invalid password"); // TODO: Prevent brute force
           // TODO: make sure they've joined a channel playing the game
           context.reply("You have logged in");
-          context.irpg.sendMessages(`${player.getName()} the level ${player.getLevel()} ${player.getClass()} is now online. Next level in ${context.irpg.duration(player.getNext())}`, "login");
+          context.irpg.sendMessages(`${player.getName()} the level ${player.getLevel()} ${player.getClass()} is now online. Next level in ${util.duration(player.getNext())}`, "login");
         }
-        context.irpg.loginPlayer(player, uid, isNew);
+        context.irpg.loginPlayer(player, uid);
       });
       break;
     case "logout":
@@ -44,7 +44,7 @@ Command.prototype.process = function(context) {
       if (!player) return context.reply("You aren't logged in");
       var p = player.penalize(20);
       player.logout(uid);
-      context.reply(`You have been penalized ${context.irpg.duration(p)} for logging out.`);
+      context.reply(`You have been penalized ${util.duration(p)} for logging out.`);
       // TODO: message all remaining users
       break;
     case "pass":
