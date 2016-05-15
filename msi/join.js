@@ -1,5 +1,6 @@
 'use strict';
 const MSI = require("./msi");
+const util = require("../utilities");
 
 class JoinMSI extends MSI {
   constructor() {
@@ -8,7 +9,11 @@ class JoinMSI extends MSI {
 }
 
 function join(step, context) {
-  var data = this.getData(), text = typeof context.irpgText !== "undefined" ? context.irpgText : context.text, self = this, game = context.irpg;
+  var data = this.getData(), text = typeof context.irpgText !== "undefined" ? context.irpgText : context.text, self = this, game = context.irpg, user = `${context.instanceId}_${context.nick}`;
+  if (!game.isInChannel(user)) {
+    context.reply("Sorry, you aren't in a game channel. Please join a channel that is running IdleRPG then try again.");
+    return this.finish();
+  }
   if (context.text === "QUIT") return this.finish();
   // Return TRUE if the step is finished
   switch(step) {
@@ -23,7 +28,7 @@ function join(step, context) {
           case "no":
           case "n":
             this.remove();
-            return context.reply("What's your player's name?");
+            return context.reply(`What name should we use? (${game.getConfig().maxNameLength} characters max) (Exit with 'QUIT')`);
         }
       } else if (!text) { // Reply input name
         context.reply(`Creating player, what name should we use? (${game.getConfig().maxNameLength} characters max)`);
@@ -65,7 +70,7 @@ function join(step, context) {
       } else { // Validate pass
         if (!context.isPM) context.reply("Uh... you just showed everyone your password!");
         this.store(text);
-        context.reply(`Password: ${text} <yes/no>`);
+        return "confirm";
       }
       return false;
     case 2: // Class
@@ -75,23 +80,27 @@ function join(step, context) {
           default:
             return context.reply("Invalid response. <yes|no> expected");
           case "yes":
-          case "y":
-            // TODO: create username
-           return true;
+          case "y"
+            var player = game.getNewPlayer(this.getData(0), this.getData(1), data);
+            context.reply(`Welcome to IdleRPG, ${player.getName()}! Keep in mind that this is an idle game, and that talking (in channels playing the game), changing nicks, parting, and quitting will penalize you.`);
+            game.sendMessages(`Here's a warm welcome to our newest player ${player.getName()} the ${player.getClass()}! Next level in ${util.duration(player.getNext())}`, "join");
+            game.loginPlayer(player, user);
+            return this.end();
           case "no":
           case "n":
-            this.remove()
-            return context.reply("What's your class? (Exit with 'QUIT')");
+            this.remove();
+            return context.reply(`What class do you want? (${game.getConfig().maxClassLength} characters max) (Exit with 'QUIT')`);
         }
-      } else if (!text) { // Reply input class
-        context.reply(`Input class for player (${game.getConfig().maxClassLength} characters max)`);
-      } else { // Validate class
-        if (text.length <= game.getConfig().maxClassLength) {
-          this.store(text);
-          return true;
+      } else if (text) {
+        if (text.length > game.getConfig().maxClassLength) {
+          context.reply(`'${text}' is too long`);
+          return "retry";
         }
+        this.store(text);
+        return "confirm";
       }
-      return false;
+      // Reply input class
+      return context.reply(`Input class for player (${game.getConfig().maxClassLength} characters max)`);
   }
 }
 
