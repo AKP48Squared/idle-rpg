@@ -601,3 +601,4 @@ function interval(func, wait, times, _this) {
 
 module.exports = IdleRPG;
 module.exports.type = 'MessageHandler';
+module.exports.pluginName = 'idle-rpg';
