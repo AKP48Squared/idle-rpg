@@ -1,6 +1,6 @@
 'use strict';
 // Imports
-const MessageHandlerPlugin = require('../../lib/MessageHandlerPlugin');
+const MessageHandlerPlugin = global.AKP48.pluginTypes.MessageHandler;
 const DB = require("./sqlite");
 const $s = require("./simple-seconds");
 const util = require("./utilities");
@@ -66,10 +66,10 @@ class IdleRPG extends MessageHandlerPlugin {
     }
     // Always save, in case of a change in config style
     self.saveConfig();
-    
+
     self._utime = 1; // Setting this to 1 makes it so that we don't list top players when our first user joins
     self._ltime = 1; // When we are setup we set ltime to current time
-    
+
     DB(function init(type, error) {
       debug("Init: " + type);
       if (self._ltime === 1) self._ltime = $s.time();
@@ -94,14 +94,14 @@ class IdleRPG extends MessageHandlerPlugin {
         });
       }
     });
-    
+
     AKP48.on("serverConnect", function(id, instance) {
       if (instance._pluginName !== "IRC") return;
       var IRC = instance._client;
       servers[id] = instance; // Store servers, otherwise we can't send game updates
       // TODO: send a notice instead?
       var send = self._sendMessage;
-      
+
       IRC.on("notice", function(nick, to, text, message) {
         if (!config.enabled) return;
         // If channel, and channel is participating in the game
@@ -160,15 +160,15 @@ class IdleRPG extends MessageHandlerPlugin {
         player.logout();
       });
     });
-    
+
     // Update every second
     interval(function () {self.update()}, 1000);
-    
+
     require('./commands').then(function(res){
       self.commands = res;
     }, function(err){
       error(err);
-    }); 
+    });
   }
 }
 
@@ -193,10 +193,10 @@ IdleRPG.prototype._handleCommand = function(message, context, resolve) {
   if (!["idle-rpg", "idle", "irpg"].includes(text.shift().toLowerCase())) return;
   resolve(); // This is OUR command.
   var command = text.shift() || "help";
-  
+
   context.irpgText = text.join(" ");
   context.irpgCommand = command;
-  
+
   util.forEach(this.commands, function(key, cmd) {
     if (!config.enabled && !cmd.admin) return; // Game isn't enabled, and it's not an admin command?
     if (!context.irpgEnabled && !(cmd.bypass || cmd.admin)) return; // Game isn't enabled in channel, and command doesn't bypass?
@@ -240,7 +240,7 @@ IdleRPG.prototype.getChannelOptions = function(channel) {
       channels[channel][val] = true;
     });
   }
-  
+
   return channels[channel];
 };
 
@@ -303,7 +303,7 @@ IdleRPG.prototype.unload = function() {
   debug("Unloading");
   var self = this;
   clearTimeout(_interval);
-  
+
   return new Promise(function(resolve, reject) {
     self.save(function (saved) {
       debug("Closing DB");
@@ -334,7 +334,7 @@ IdleRPG.prototype.processContext = function(context) {
     context.irpgEnabled = true;
     context.isPM = true;
   }
-  
+
   function getDelimiter() {
     var instance = context.instance;
     var _config;
@@ -344,7 +344,7 @@ IdleRPG.prototype.processContext = function(context) {
     }
     return (instance._config.commandDelimiters || instance._defaultCommandDelimiters)[0];
   }
-  
+
   context.delimiter = getDelimiter();
   // Sends a message to the channel if it's not going to be alerted
   context.alert = function(message, chanMessage) {
@@ -358,14 +358,14 @@ IdleRPG.prototype.processContext = function(context) {
     if (send) this.reply(chanMessage || message);
     this.instance._AKP48.emit("alert", message);
   };
-  
+
   var self = this;
   // Replies to sender if PM, channel if not
   context.reply = function (message, target) {
     target = target || this.isPM ? context.nick : context.to; // If no target is specified, target the default
     self._sendMessage(this.instance, target, message);
   };
-  
+
   // Check if sender is a player
   context.player = this.findPlayer(`${context.instanceId}_${context.nick}`); // Players get stored by ServerID+nick...
   context.irpg = this;
@@ -398,13 +398,13 @@ IdleRPG.prototype.update = function() {
       self.sendMessages(msgs, "top");
     });
   }
-  
+
   if (self._utime % $s.inMinutes(10) === 0) {
     self.save(function () {
       //this._AKP48.emit("alert", "IdleRPG: Auto saved game");
     });
   }
-  
+
   // Update players
   util.forEach(players, function(key, player) {
     if (player.update(uTime)) {
@@ -436,7 +436,7 @@ IdleRPG.prototype.sendMessages = function (messages, type, filter) {
       return typeof value === undefined || value ? true : false; // If it's undefined or truthy we keep it
     });
   }
-  
+
   var self = this;
   chans.forEach(function (chan) {
     var server = chan.substring(0, chan.indexOf("_"));
@@ -477,7 +477,7 @@ IdleRPG.prototype.findItem = function(player) {
       level = n;
     }
   }
-  
+
   var current_item = player.getItem(type), better = level > current_item;
   var msg = `You found a level ${level} ${type}, way ${better ? "better" : "worse"} than a level ${current_item} ${type}.`;
   if (better) {
@@ -600,3 +600,4 @@ function interval(func, wait, times, _this) {
 }
 
 module.exports = IdleRPG;
+module.exports.type = 'MessageHandler';
