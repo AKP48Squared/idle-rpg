@@ -7,6 +7,7 @@ exports.values = values; // Gets values from an object, returns an array
 exports.random = random; // Get a random value from (low to high, or 0 to low)
 exports.duration = duration; // Return human readable time
 exports.forEach = forEach; // Iterate over an object
+exports.startsWith = startsWith; // String starts with X
 exports.item_types = ["helm", "shirt", "pants", "shoes", "gloves", "weapon", "shield", "ring", "amulet", "charm"];
 
 function isChannel(text) {
@@ -56,4 +57,8 @@ function forEach(object, func, thisArg) {
   Object.keys(object).forEach(function (key) {
     func.call(thisArg, key, object[key]);
   });
+}
+
+function startsWith(string, match) {
+  return string && match && string.indexOf(match) === 0;
 }
