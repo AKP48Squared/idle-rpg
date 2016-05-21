@@ -2,13 +2,14 @@ const util = require("../utilities");
 
 // View/Edit individual options for a channel
 function Command() {
-  this.names = ["channel", "chan-opts", "options"];
+  this.names = ["channel", "chan-opts", "options", "mode"];
   this.perms = "irc.channel.op";
 }
 
-function build(object) {
+function build(chan) {
   var str = [];
-  util.forEach(object, function (key, val) {
+  util.forEach(chan, function (key, val) {
+    if (key === "enabled") return;
     if (val === true) {
       val = "enabled";
     } else if (val === false) {
@@ -19,21 +20,42 @@ function build(object) {
   return str.join(", ");
 }
 
+function set(obj, key, value) {
+  if (!obj.hasOwnProperty(key)) return `${key} does not exist`;
+  var old = obj[key];
+  if (old === value) return `${key} is already ${value}`;
+  obj[key] = value;
+  return `${key} is now ${value} from ${old}`;
+}
+
 Command.prototype.process = function(context) {
   // Make sure there's a channel
-  var options = {};
+  if (!context.irpgChannel) return context.reply("Can only be used in a channel");
   var chan = context.irpg.getChannelOptions(context.irpgChannel);
-  Object.keys(chan).forEach(function (key) {
-    if (key !== "enabled") options[key] = chan[key];
-  });
   // By default list the current options
   if (context.irpgText.length === 0) {
-    return context.reply(`Options: ${build(options)}`);
+    return context.reply(`Options: ${Object.keys(chan).filter((e) => e !== "enabled").join(", ")} (To see all values, use 'idle ${context.irpgCommand} all')`);
   }
-  var args = context.irpgText.split(" ");
-  context.reply("To be implemented");
-  // If option and no value, explain the option
-  // Otherwise change the option to the provided value
+  if (context.irpgText.toLowerCase() === "all") {
+    return context.reply(`Options: ${build(chan)}`);;
+  }
+  context.irpgText.split(" ").forEach(function(arg) {
+    var key, val = util.startsWith(arg, "+");
+    if (val || util.startsWith(arg, "-")) {
+      // Enable or Disable
+      key = arg.substr(1);
+    } else if (arg.includes("=")) {
+      // Set to provided value
+      var i = arg.indexOf("=");
+      key = arg.substr(0, i);
+      val = arg.substr(i + 1);
+    } else if (!chan.hasOwnProperty(arg)) {
+      return context.reply(`${arg} does not exist`);
+    } else {
+      return context.reply(`${arg}: ${chan[arg]}`);
+    }
+    context.reply(set(chan, key, val));
+  });
 };
 
 module.exports = Command;
